@@ -1,34 +1,72 @@
 import React from 'react';
-import { Card, CardContent, Grid, Typography } from '@mui/material';
+import {
+  Card,
+  CardContent,
+  CircularProgress,
+  Grid,
+  Typography,
+} from '@mui/material';
 import { getCurrentWeather } from '../businessLogic/appRequest';
 import { useEffect, useState } from 'react';
 import { AxiosResponse } from 'axios';
+import { useGeolocated } from 'react-geolocated';
+
+interface IWeatherData {
+  location: {
+    name: string;
+    region: string;
+  };
+  current: {
+    temp_f: string;
+    condition: {
+      text: string;
+      icon: string;
+    };
+  };
+}
 
 const WeatherCard: React.FC<{}> = () => {
-  const [weatherData, setWeatherData] = useState<AxiosResponse | void>();
+  const [weatherData, setWeatherData] =
+    useState<AxiosResponse<IWeatherData> | void>();
+
+  const { coords, isGeolocationAvailable, isGeolocationEnabled } =
+    useGeolocated({
+      positionOptions: {
+        enableHighAccuracy: false,
+      },
+      userDecisionTimeout: 5000,
+    });
 
   useEffect(() => {
-    getCurrentWeather('Atlanta').then((res) => setWeatherData(res));
-  }, []);
+    if (coords) {
+      getCurrentWeather(`${coords?.latitude},${coords?.longitude}`).then(
+        (res) => setWeatherData(res)
+      );
+    }
+  }, [coords]);
 
   return (
     <Grid item>
       <Card>
         <CardContent>
-          <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
-            Word of the Day
-          </Typography>
-          <Typography variant="h5" component="div">
-            benevolent
-          </Typography>
-          <Typography sx={{ mb: 1.5 }} color="text.secondary">
-            adjective
-          </Typography>
-          <Typography variant="body2">
-            well meaning and kindly.
-            <br />
-            {'"a benevolent smile"'}
-          </Typography>
+          {weatherData?.data ? (
+            <>
+              <Typography
+                sx={{ fontSize: 14 }}
+                color="text.secondary"
+                gutterBottom
+              >
+                {weatherData.data.location.name},{' '}
+                {weatherData.data.location.region}
+              </Typography>
+              <Typography variant="h5" component="div">
+                {weatherData.data.current.temp_f}° {' and '}
+                {weatherData.data.current.condition.text}
+              </Typography>
+            </>
+          ) : (
+            <CircularProgress />
+          )}
         </CardContent>
       </Card>
     </Grid>
