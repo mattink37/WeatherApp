@@ -1,6 +1,10 @@
-# Getting Started with Create React App
+# Instructions
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project was created using [weatherapi.com](https://www.weatherapi.com/).
+
+1. Create a free account on weatherapi.com to generate an API key.
+2. At the root of the project create a file called `.env` and add `REACT_APP_API_KEY="Your-API-Key-Here"`
+3. In a terminal, navigate to the root directory and type `npm i` followed by `npm start`
 
 ## Available Scripts
 
