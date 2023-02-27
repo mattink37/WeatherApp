@@ -10,24 +10,11 @@ import { getCurrentWeather } from '../businessLogic/appRequest';
 import { useEffect, useState } from 'react';
 import { AxiosResponse } from 'axios';
 import { useGeolocated } from 'react-geolocated';
-
-interface IWeatherData {
-  location: {
-    name: string;
-    region: string;
-  };
-  current: {
-    temp_f: string;
-    condition: {
-      text: string;
-      icon: string;
-    };
-  };
-}
+import { IForcastWeatherData } from '../businessLogic/IWeatherData';
 
 const WeatherCard: React.FC<{}> = () => {
-  const [weatherData, setWeatherData] =
-    useState<AxiosResponse<IWeatherData> | void>();
+  const [forcastWeatherData, setForcastWeatherData] =
+    useState<AxiosResponse<IForcastWeatherData> | void>();
 
   const { coords, isGeolocationAvailable, isGeolocationEnabled } =
     useGeolocated({
@@ -39,9 +26,13 @@ const WeatherCard: React.FC<{}> = () => {
 
   useEffect(() => {
     if (coords) {
-      getCurrentWeather(`${coords?.latitude},${coords?.longitude}`).then(
-        (res) => setWeatherData(res)
-      );
+      getCurrentWeather(`${coords?.latitude},${coords?.longitude}`)
+        .then((res): AxiosResponse<IForcastWeatherData> | void =>
+          setForcastWeatherData(res)
+        )
+        .catch((e) => {
+          // todo - unhandled for now
+        });
     }
   }, [coords]);
 
@@ -49,19 +40,19 @@ const WeatherCard: React.FC<{}> = () => {
     <Grid item>
       <Card>
         <CardContent>
-          {weatherData?.data ? (
+          {forcastWeatherData?.data ? (
             <>
               <Typography
                 sx={{ fontSize: 14 }}
                 color="text.secondary"
                 gutterBottom
               >
-                {weatherData.data.location.name},{' '}
-                {weatherData.data.location.region}
+                {forcastWeatherData.data.location.name},{' '}
+                {forcastWeatherData.data.location.region}
               </Typography>
               <Typography variant="h5" component="div">
-                {weatherData.data.current.temp_f}° {' and '}
-                {weatherData.data.current.condition.text}
+                {forcastWeatherData.data.current.temp_f}° {' and '}
+                {forcastWeatherData.data.current.condition.text}
               </Typography>
             </>
           ) : (
